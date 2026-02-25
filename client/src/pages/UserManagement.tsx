@@ -118,15 +118,18 @@ export default function UserManagement() {
                 value={editUser.username || ''}
                 onChange={e => setEditUser({ ...editUser, username: e.target.value })}
               />
-              <select
-                className="w-full border rounded px-3 py-2"
-                value={editUser.role}
-                onChange={e => setEditUser({ ...editUser, role: e.target.value })}
-              >
-                <option value="comm">普通用户</option>
-                <option value="vip">VIP</option>
-                <option value="admin">管理员</option>
-              </select>
+              {editUser.role === 'admin' ? (
+                <div className="border rounded px-3 py-2 bg-muted">管理员（不可更改）</div>
+              ) : (
+                <select
+                  className="w-full border rounded px-3 py-2"
+                  value={editUser.role}
+                  onChange={e => setEditUser({ ...editUser, role: e.target.value })}
+                >
+                  <option value="comm">普通用户</option>
+                  <option value="vip">VIP</option>
+                </select>
+              )}
               <select
                 className="w-full border rounded px-3 py-2"
                 value={editUser.status}
