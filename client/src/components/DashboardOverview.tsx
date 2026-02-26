@@ -7,6 +7,7 @@
 
 import { useState, useEffect } from 'react';
 import { marketOverview, signalDistribution, generateKLineData } from '@/data/mockData';
+import { API_BASE_URL } from '@/config';
 import StatCard from './StatCard';
 import KLineChart from './charts/KLineChart';
 import {
@@ -29,11 +30,18 @@ interface DashboardOverviewProps {
 
 export default function DashboardOverview({ onNavigate }: DashboardOverviewProps) {
   const [indexKLineData, setIndexKLineData] = useState<ReturnType<typeof generateKLineData>>([]);
+  const [marketCap, setMarketCap] = useState<{ activeMarketCap: number; totalMarketCap: number } | null>(null);
 
-  // 生成上证指数K线数据（基准价格3000点左右）
   useEffect(() => {
     const data = generateKLineData(3000, 60);
     setIndexKLineData(data);
+  }, []);
+
+  useEffect(() => {
+    fetch(`${API_BASE_URL}/market/overview`)
+      .then((res) => res.ok ? res.json() : Promise.reject(new Error('fetch failed')))
+      .then((data) => setMarketCap({ activeMarketCap: data.activeMarketCap, totalMarketCap: data.totalMarketCap }))
+      .catch(() => setMarketCap(null));
   }, []);
 
   // 信号强度分布数据
@@ -65,7 +73,7 @@ export default function DashboardOverview({ onNavigate }: DashboardOverviewProps
       <div className="grid grid-cols-4 gap-4">
         <StatCard
           title="当日活跃市值"
-          value={marketOverview.activeMarketCap}
+          value={marketCap != null ? `${marketCap.activeMarketCap}万亿` : marketOverview.activeMarketCap}
           subtitle={`市场情绪${marketOverview.marketSentiment}`}
           change={marketOverview.sentimentChange}
           icon={Activity}
